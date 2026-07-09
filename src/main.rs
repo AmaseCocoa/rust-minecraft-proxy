@@ -1,44 +1,10 @@
 mod parser;
-mod utils;
 
 use crate::parser::{MinecraftReadExt, MinecraftWriteExt};
-use crate::utils::{disconnect_client, send_motd_response};
-use std::io::{self, Error};
+use std::io::{self};
 use tokio::io::{AsyncReadExt, AsyncWriteExt, copy_bidirectional};
 use tokio::net::{TcpListener, TcpStream};
 
-async fn handle_status_request(mut stream: TcpStream) -> Result<(), Error> {
-    let _req_len = stream.read_var_int().await?;
-    let req_id = stream.read_var_int().await?;
-
-    if req_id != 0x00 {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "Invalid Status Request",
-        ));
-    }
-
-    let _ = send_motd_response(&mut stream).await;
-
-    let _ping_len = stream.read_var_int().await?;
-    let ping_id = stream.read_var_int().await?;
-    if ping_id == 0x01 {
-        let mut time_payload = [0u8; 8];
-        let mut pong_data = Vec::new();
-        let mut final_pong = Vec::new();
-
-        stream.read_exact(&mut time_payload).await?;
-        stream.write_var_int(&mut pong_data, 0x01).await?;
-        stream.write_var_int(&mut final_pong, pong_data.len() as i32).await?;
-
-        pong_data.extend_from_slice(&time_payload);
-
-        stream.write_all(&final_pong).await?;
-        stream.flush().await?;
-    }
-
-    Ok(())
-}
 
 pub async fn handle_client_connection(mut stream: TcpStream) -> io::Result<()> {
     let _packet_length = stream.read_var_int().await?;
