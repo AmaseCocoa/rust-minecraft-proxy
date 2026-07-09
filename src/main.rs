@@ -87,22 +87,6 @@ pub async fn handle_client_connection(mut stream: TcpStream) -> io::Result<()> {
         Err(e) => eprintln!("Failed to connect to target: {}", e),
     }
 
-    /*
-    let next_state = stream.read_var_int().await?;
-
-    match next_state {
-        1 => {
-            handle_status_request(stream).await?;
-        }
-        2 => {
-            disconnect_client(stream).await?;
-        }
-        _ => {
-            println!("未知のNext State（状態）です: {}", next_state);
-        }
-    }
-    */
-
     Ok(())
 }
 
