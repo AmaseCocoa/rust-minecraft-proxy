@@ -8,7 +8,7 @@ use std::{
 
 pub async fn disconnect_client(mut stream: TcpStream) -> Result<(), Error> {
     let mut packet_data = Vec::new();
-    let mut final_packet = Vec::new();
+    let mut final_packet: Vec<u8> = Vec::new();
     let json_reason = format!(r#"{{"text":"{}"}}"#, "YOU DISCONNECTED");
 
     stream.write_var_int(&mut packet_data, 0x00).await?;
